@@ -2,24 +2,125 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2048</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Стили из предыдущего ответа */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Roboto', sans-serif; background: #1a1a1a; color: #e0e0e0; min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
-        .container { max-width: 500px; margin: 0 auto; background: #2a2a2a; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
-        .header { text-align: center; padding: 15px; background: #3a3a3a; border-radius: 8px; margin-bottom: 20px; position: relative; display: flex; justify-content: space-between; align-items: center; }
-        .sound-toggle { background: #555; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: none; }
-        .score { font-size: 20px; }
-        .game-board { display: grid; grid-template-columns: repeat(4, 100px); grid-gap: 10px; background: #333; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-        .tile { width: 100px; height: 100px; background: #4a4a4a; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; transition: all 0.2s; }
-        .tile.merged { background: #ffca28; transform: scale(1.1); }
-        .restart-button { background: #d81b60; color: #fff; padding: 12px; border-radius: 4px; cursor: pointer; transition: background 0.2s; text-align: center; font-size: 16px; }
-        .restart-button:hover { background: #e91e63; }
-        .game-over { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; flex-direction: column; z-index: 10; display: none; }
-        .game-over-text { font-size: 48px; margin-bottom: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90vw;
+            max-width: 500px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 2vw;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            padding: 2vw;
+            background: #3a3a3a;
+            border-radius: 8px;
+            margin-bottom: 2vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score {
+            font-size: 5vw;
+            text-align: center;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 2vw;
+            background: #333;
+            padding: 2vw;
+            border-radius: 8px;
+            margin-bottom: 2vw;
+            width: 100%;
+        }
+
+        .tile {
+            width: 100%;
+            padding-top: 100%; /* Квадратное соотношение сторон */
+            position: relative;
+            background: #4a4a4a;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8vw;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tile span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .tile.merged {
+            background: #ffca28;
+            transform: scale(1.1);
+        }
+
+        .restart-button {
+            background: #d81b60;
+            color: #fff;
+            padding: 2vw;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+            font-size: 4vw;
+        }
+
+        .restart-button:hover {
+            background: #e91e63;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            display: none;
+        }
+
+        .game-over-text {
+            font-size: 12vw;
+            margin-bottom: 4vw;
+        }
+
         .tile-2 { background: #e0e0e0; color: #333; }
         .tile-4 { background: #b0b0b0; color: #333; }
         .tile-8 { background: #ff8a65; color: #fff; }
@@ -38,9 +139,8 @@
     <div class="container">
         <div class="header">
             <h1>2048</h1>
-            <div class="score" id="score">Счёт: 0</div>
-            <button class="sound-toggle" id="soundToggle">Выкл. звук</button>
         </div>
+        <div class="score" id="score">Счёт: 0</div>
         <div class="game-board" id="gameBoard"></div>
         <div class="restart-button" id="restartButton">Новая игра</div>
         <div class="game-over" id="gameOver">
@@ -52,9 +152,6 @@
         const boardSize = 4;
         let board = [];
         let score = 0;
-        let soundEnabled = true;
-        const tileSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
-        const mergeSound = new Audio('https://www.soundjay.com/buttons/beep-07.mp3');
 
         function initGame() {
             board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
@@ -76,7 +173,6 @@
             if (emptyTiles.length > 0) {
                 const { x, y } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
                 board[x][y] = Math.random() < 0.9 ? 2 : 4;
-                if (soundEnabled) tileSound.play();
             }
         }
 
@@ -88,7 +184,9 @@
                     const tile = document.createElement('div');
                     tile.className = 'tile';
                     if (board[i][j] > 0) {
-                        tile.textContent = board[i][j];
+                        const span = document.createElement('span');
+                        span.textContent = board[i][j];
+                        tile.appendChild(span);
                         tile.classList.add(`tile-${board[i][j]}`);
                     }
                     gameBoard.appendChild(tile);
@@ -145,7 +243,6 @@
                     newRow[i] *= 2;
                     score += newRow[i];
                     newRow.splice(i + 1, 1);
-                    if (soundEnabled) mergeSound.play();
                     movedLocal = true;
                     const tile = document.querySelectorAll('.tile')[i];
                     if (tile) tile.classList.add('merged');
@@ -193,6 +290,7 @@
             }
         }
 
+        // Управление клавишами
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowLeft': move('left'); break;
@@ -202,10 +300,29 @@
             }
         });
 
-        document.getElementById('soundToggle').onclick = () => {
-            soundEnabled = !soundEnabled;
-            document.getElementById('soundToggle').textContent = soundEnabled ? 'Выкл. звук' : 'Вкл. звук';
-        };
+        // Сенсорное управление
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 50) move('right');
+                else if (deltaX < -50) move('left');
+            } else {
+                if (deltaY > 50) move('down');
+                else if (deltaY < -50) move('up');
+            }
+        });
 
         document.getElementById('restartButton').addEventListener('click', () => {
             restartGame();
